@@ -1,0 +1,10 @@
+
+.env
+.env.local
+*.env
+
+credentials.json
+token.json
+__pycache__/
+*.pyc
+.vscode/settings.json

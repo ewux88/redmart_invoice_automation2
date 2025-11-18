@@ -1,0 +1,8 @@
+# Core packages for Gmail, Google Drive, OpenAI, PDF extraction, and CrewAI
+crewai
+openai
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+PyPDF2
+pdfplumber
