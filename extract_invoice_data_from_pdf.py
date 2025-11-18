@@ -46,7 +46,7 @@ class ExtractInvoice:
             {text}
 
             Extract and output the following fields for the invoice and for EACH item:
-            - filename
+            - filename ({filename})
             - delivery_date (format: 15 Nov 2025)
             - order_number
             - order_date (format: 15 Nov 2025)
@@ -64,8 +64,8 @@ class ExtractInvoice:
 				<json>
 				{{
 					"items": [
-						{{"filename": "{filename}", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Singo Pears 1KG", "qty": 1, "unit_price": 6.95, "total_price": 6.95}},
-						{{"filename": "{filename}", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Alphonso Mango 200G", "qty": 1, "unit_price": 3.50, "total_price": 3.50}}
+						{{"filename": "SG2025111501IVIS000073422673.pdf", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Singo Pears 1KG", "qty": 1, "unit_price": 6.95, "total_price": 6.95}},
+						{{"filename": "SG2025111501IVIS000073422673.pdf", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Alphonso Mango 200G", "qty": 1, "unit_price": 3.50, "total_price": 3.50}}
 					]
 				}}
 				</json>

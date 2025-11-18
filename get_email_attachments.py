@@ -7,7 +7,6 @@ SCOPES = [
 import base64
 import os
 from datetime import datetime, timedelta
-
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -25,8 +24,10 @@ class GetEmailAttachments:
         self.drive_service = self.get_drive_service()
 
         # Form gmail query
+        lookback_days = os.getenv("EMAIL_LOOKBACK_DAYS", "30")
+        lookback_days = int(lookback_days)
         today = datetime.utcnow()
-        one_month_ago = today - timedelta(days=30)
+        one_month_ago = today - timedelta(days=lookback_days)
         after = int(one_month_ago.timestamp())
         before = int(today.timestamp())
         self.gmail_query = f'after:{after} before:{before} has:attachment "{self.invoice_keyword}"'
@@ -60,8 +61,25 @@ class GetEmailAttachments:
             f"and mimeType='{self.pdf_mime}' "
             f"and trashed = false"
         )
-        results = self.drive_service.files().list(q=query, fields="files(name)").execute()
-        return set(f['name'] for f in results.get('files', []))
+        files = set()
+        page_token = None
+
+        while True:
+            response = (
+                self.drive_service.files()
+                .list(
+                    q=query,
+                    fields="nextPageToken, files(name)",
+                    pageToken=page_token,
+                )
+                .execute()
+            )
+            files.update(f["name"] for f in response.get("files", []))
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+
+        return files
 
     def search_emails(self):
         """Run the Gmail query prepared in __init__."""
