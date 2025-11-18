@@ -1,4 +1,4 @@
-# **From Inbox to Insights: Automating RedMart Invoices with AI & Google Sheets**
+# **Applying Data Science to Everyday Life: Building an LLM Automation to Organize My Groceries Spending**
 
 Online grocery shopping is great — until you need to track your invoices.
 
@@ -116,6 +116,43 @@ Example output:
 
 The JSON is extracted from between `<json>...</json>` tags, or parsed directly if no tags are present.
 
+**The actual prompt used:**
+
+<div style="background:#F4F6F8; padding:16px; border-radius:8px; font-family:Menlo,Monaco,Consolas,'Courier New',monospace; color:#000; font-size:13px; line-height:1.6;">
+You are a senior accountant. <br>
+Given the following invoice text, extract structured data for each item.<br><br>
+
+Invoice text:<br>
+{text}<br><br>
+
+Extract and output the following fields for the invoice and for EACH item:<br>
+- filename<br>
+- delivery_date (format: 15 Nov 2025)<br>
+- order_number<br>
+- order_date (format: 15 Nov 2025)<br>
+- order_month (e.g., Nov 2025)<br>
+- description<br>
+- qty<br>
+- unit_price (number only)<br>
+- total_price (number only)<br><br>
+
+Instructions:<br>
+- Return ONLY JSON wrapped between &lt;json&gt; and &lt;/json&gt; tags.<br>
+- If a field is missing, use empty string or null.<br><br>
+
+Example output (item-centric):<br>
+&lt;json&gt;<br>
+{{<br>
+  "items": [<br>
+    {{"filename": "SG2025111501IVIS000073422673.pdf", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Singo Pears 1KG", "qty": 1, "unit_price": 6.95, "total_price": 6.95}},<br>
+    {{"filename": "SG2025111501IVIS000073422673.pdf", "delivery_date": "15 Nov 2025", "order_number": "155692472517361", "order_date": "11 Nov 2025", "order_month": "Nov 2025", "description": "Alphonso Mango 200G", "qty": 1, "unit_price": 3.50, "total_price": 3.50}}<br>
+  ]<br>
+}}<br>
+&lt;/json&gt;
+</div>
+
+The prompt is intentionally simple and role-based ("You are a senior accountant") to guide the model toward accurate extraction. The example JSON shows the exact structure expected, making it easy for the LLM to follow the format.
+
 ---
 
 ## <span style="color:#0A5B87;font-weight:700;">4. Writing Line Items to Google Sheets</span>
@@ -135,6 +172,24 @@ python -c "from sheets_writer import test_append_invoice_items; test_append_invo
 ## <span style="color:#0A5B87;font-weight:700;">5. Archiving the PDF to Google Drive</span>
 
 After writing to Sheets, the PDF is uploaded to a Drive folder (specified by `DRIVE_FOLDER_ID`). Duplicate invoices are automatically skipped on future runs by checking existing filenames in the folder.
+
+---
+
+## <span style="color:#0A5B87;font-weight:700;">Insight Layer: Pivoting Spend by Item and Month</span>
+
+After the automation populated Google Sheets with clean rows, I added a lightweight analytics layer using a native pivot table:
+
+1. Select the entire data range (including headers).
+2. Click **Insert → Pivot table** (new sheet).
+3. Configure the pivot table:
+   - **Rows:** `description` (each grocery item).
+   - **Columns:** `order_month` (e.g., "Jan 2025").
+   - **Values:** 
+     - `qty` → Summarize by SUM to see total quantity purchased per month.
+     - `total_price` → Summarize by SUM for the dollar amount.
+4. Optional: add `delivery_date` or `order_number` as filters if you want to limit to a specific time window.
+
+The result is an at-a-glance matrix showing how many units of each item I bought each month and how much was spent. It turns the raw feed into actionable budgeting insight without any additional code.
 
 ---
 
